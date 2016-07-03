@@ -1,0 +1,13 @@
+DO _NOT_ use transmission-daemon's notification functionality since it can only be used on ONE directory.
+
+STEP ONE: Decrypt drive
+STEP TWO: Start transmission-daemon
+STEP THREE: Start incron
+
+incron watches the two directories for incoming files, shoots them over to the add_script, which then adds them to transmission, which then calls done_script on completion.
+
+root@plex-server:/etc/transmission-daemon# incrontab -u debian-transmission -l
+/data/trackers_movies/ IN_CREATE,IN_MOVED_TO /etc/transmission-daemon/add_script.sh $# $@ $%
+/data/trackers_shows/ IN_CREATE,IN_MOVED_TO /etc/transmission-daemon/add_script.sh $# $@ $
+
+

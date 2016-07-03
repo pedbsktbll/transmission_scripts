@@ -15,7 +15,7 @@ def main(string):
 #    fullDir = args[1]
     fullDir = string
     baseDir = "/data/"
-    logfile = "/etc/transmission-daemon/logs/done_script.txt"
+    logfile = baseDir + "logs/done_script.txt"
     extensions = ('*.mkv', '*.avi', '*.mp4')
     files = []
 
@@ -53,7 +53,7 @@ def main(string):
                 try:
                     FinalizeShow(file, l)
                 except Exception as e:
-                    l.write("Failure renaming " + file + " Errir " + str(e) + os.linesep)
+                    l.write("Failure renaming " + file + " Error " + str(e) + os.linesep)
 #               os.symlink(fullDir, outdir)
             l.write(os.linesep)
         l.write(os.linesep)
@@ -94,8 +94,8 @@ def FinalizeShow(file, l):
     # Let's try to setup a symlink to the show, renamed with filebot
     s = parseS(os.path.basename(file))
     title = s[0][0].replace(".", " ")
-    season = int(s[0][1])
-    episode = int(s[0][2])
+    season = str(int(s[0][1]))
+    episode = str(int(s[0][2]))
     outdir = "/data/shows/" + title + "/Season " + str(season) + "/"
 
     proc = subprocess.Popen(["filebot", "--action", "test", "--db", "TheTVDB", "-rename", file, "--output", outdir], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -107,7 +107,7 @@ def FinalizeShow(file, l):
     if ret != 0:
         # If that fails, then we'll try to be more specific
         l.write("Retrying FileBot with Title: " + title + " Season: " + season + " episode: " + episode + os.linesep)
-        proc = subprocess.Popen(["filebot", "--action", "test", "--db", "TheTVDB", "--q", title, "--filter", '"s == ' + season + ' && e == ' + episode + '"', "-rename", file, "--output", outdir], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(["filebot", "--action", "test", "--db", "TheTVDB", "-non-strict", "--q", title, "--filter", '"s == ' + season + ' && e == ' + episode + '"', "-rename", file, "--output", outdir], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         proc.wait(timeout=60)
         l.write(proc.stdout.read().decode('utf-8').rstrip() + os.linesep)
         l.write(proc.stderr.read().decode('utf-8').rstrip() + os.linesep)
@@ -132,15 +132,26 @@ def parseM(file):
 
 
 def parseS(file):
-    return re.findall(r"""(.*)          # Title
+#    ret = re.findall(r"""(.*)          # Title
+#        [ .]
+#        [Ss](\d{1,2})    # Season
+#        [Ee](\d{1,2})    # Episode
+#        [ .a-zA-Z]*  # Space, period, or words like PROPER/Buried
+#        (\d{3,4}p)?   # Quality
+#    """, file, re.VERBOSE)
+#
+#    if len(s[0]) < 3:
+#        return re.findall(r"""(.*)[ .](\d{1,2})x+(\d{1,2})[ .a-zA-Z]*(\d{3,4}p)?""", file, re.VERBOSE)
+
+    return re.findall(r"""(.*) # Title
         [ .]
-        S(\d{1,2})    # Season
-        E(\d{1,2})    # Episode
-        [ .a-zA-Z]*  # Space, period, or words like PROPER/Buried
-        (\d{3,4}p)?   # Quality
-    """, file, re.VERBOSE)
-
-
+        (?:
+        (\d)(\d{2})\D|          # This matches: outlander.112.hdtv-lol.mp4
+        (\d{1,2})x?(\d{1,2})|   # This matches: outlander.1112.hdtv-lol.mp4 AND American Dad! - 12x04 - Big Stan on Campus.mkv
+        [Ss|season|(\d{1,2})](\d{1,2})[Ee|episode|x](\d{1,2})) # This matches everything else (hopefully)
+        [ .a-zA-Z]*             # Space, period, or words like PROPER/Buried
+        (\d{3,4}p)?             # Quality
+        """, file, re.VERBOSE)
 
 
 if __name__ == '__main__':

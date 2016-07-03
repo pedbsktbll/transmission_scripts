@@ -1,7 +1,8 @@
 import os
 import done_script
 
-dir = '/data/trackers_movies/'
+#dir = '/data/trackers_movies/'
+dir = '/data/trackers_shows/'
 #with open("files.txt", "w") as a:
 for filename in os.listdir(dir):
     if '.torrent' not in filename:

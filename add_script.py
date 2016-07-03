@@ -12,7 +12,7 @@ def main():
     # Program Vars
     file = args[2] + args[1]
     action = args[3]
-    logfile = "/etc/transmission-daemon/logs/add_script_log.txt"
+    logfile = "/data/logs/add_script.txt"
 
     # Ensure it's a file with specific extension
     if not os.path.isfile(file) or not file.lower().endswith('.torrent'):

@@ -27,6 +27,13 @@ def main():
     else:
         files = [fullDir]
 
+    # So this might be a bug in python's glob.glob, BUTTT...
+    # glob.glob("/data/trackers_movies/Son.of.Saul.2015.720p.BluRay.x264-PSYCHD[rarbg]/*.mkv") NO WORK
+    # glob.glob("/data/trackers_movies/Son.of.Saul.2015.720p.BluRay.x264-PSYCHD[rarbg*/*.mkv") WORK???
+    if not files:
+        for ext in extensions:
+            files.extend(glob.glob(fullDir[:-1] + "*/" + ext))
+
     # Now we determine whether it's a movie or TV show
     if fullDir[15] == 'm':
         movie = True

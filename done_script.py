@@ -71,7 +71,7 @@ def main():
 # http://stackoverflow.com/questions/18340576/parsing-filenames-with-pythons-re-module
 def FinalizeMovie(file, l):
     # Let's try to setup a symlink to the movie, renamed with filebot
-    proc = subprocess.Popen(["filebot", "--log-file", "/data/logs/.filebot/logs/fb.log", "--action", "symlink", "--db", "TheMovieDB", "-rename", file, "--output", "/data/movies/"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(["filebot", "--log-file", "/data/logs/.filebot/logs/fb.log", "--action", "symlink", "--conflict", "override", "--db", "TheMovieDB", "-rename", file, "--output", "/data/movies/"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     proc.wait(timeout=60)
     l.write(proc.stdout.read().decode('utf-8').rstrip() + os.linesep)
     l.write(proc.stderr.read().decode('utf-8').rstrip() + os.linesep)
@@ -82,7 +82,7 @@ def FinalizeMovie(file, l):
         m = parseM(os.path.basename(file))
         title = m[0][0].replace(".", " ")
         l.write("Retrying FileBot with " + title + os.linesep)
-        proc = subprocess.Popen(["filebot", "--log-file", "/data/logs/.filebot/logs/fb.log", "--action", "symlink", "--db", "TheMovieDB", "-non-strict", "--q", title, "-rename", file, "--output", "/data/movies/"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(["filebot", "--log-file", "/data/logs/.filebot/logs/fb.log", "--action", "symlink", "--conflict", "override", "--db", "TheMovieDB", "-non-strict", "--q", title, "-rename", file, "--output", "/data/movies/"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         proc.wait(timeout=60)
         l.write(proc.stdout.read().decode('utf-8').rstrip() + os.linesep)
         l.write(proc.stderr.read().decode('utf-8').rstrip() + os.linesep)
@@ -105,7 +105,7 @@ def FinalizeShow(file, l):
     episode = str(int(s[0][2]))
     outdir = "/data/shows/" + title + "/Season " + str(season) + "/"
 
-    proc = subprocess.Popen(["filebot", "--log-file", "/data/logs/.filebot/logs/fb.log", "--action", "symlink", "--db", "TheTVDB", "-rename", file, "--output", outdir], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(["filebot", "--log-file", "/data/logs/.filebot/logs/fb.log", "--action", "symlink", "--conflict", "override", "--db", "TheTVDB", "-rename", file, "--output", outdir], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     proc.wait(timeout=60)
     l.write(proc.stdout.read().decode('utf-8').rstrip() + os.linesep)
     l.write(proc.stderr.read().decode('utf-8').rstrip() + os.linesep)
@@ -114,7 +114,7 @@ def FinalizeShow(file, l):
     if ret != 0:
         # If that fails, then we'll try to be more specific
         l.write("Retrying FileBot with Title: " + title + " Season: " + season + " episode: " + episode + os.linesep)
-        proc = subprocess.Popen(["filebot", "--log-file", "/data/logs/.filebot/logs/fb.log", "--action", "symlink", "--db", "TheTVDB", "-non-strict", "--q", title, "--filter", '"s == ' + season + ' && e == ' + episode + '"', "-rename", file, "--output", outdir], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(["filebot", "--log-file", "/data/logs/.filebot/logs/fb.log", "--action", "symlink", "--conflict", "override", "--db", "TheTVDB", "-non-strict", "--q", title, "--filter", '"s == ' + season + ' && e == ' + episode + '"', "-rename", file, "--output", outdir], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         proc.wait(timeout=60)
         l.write(proc.stdout.read().decode('utf-8').rstrip() + os.linesep)
         l.write(proc.stderr.read().decode('utf-8').rstrip() + os.linesep)

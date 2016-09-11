@@ -21,7 +21,7 @@ def main():
 
     # If it's a directory then call unrar and find all files with "extensions"
     if( os.path.isdir(fullDir)):
-        call(["unrar", "e", "-r", fullDir + "/*.rar", fullDir])
+        call(["unrar", "e", "-o-", "-r", fullDir + "/*.rar", fullDir])
         for ext in extensions:
             files.extend(glob.glob(fullDir + "/" + ext))
     else:
